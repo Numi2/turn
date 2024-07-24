@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 An extension for turn-based games that handles turn-based listener events.
@@ -175,7 +175,6 @@ extension TurnBasedGame: GKTurnBasedEventListener {
     }
 
     /// Exchanges the items and removes completed exchanges from the match object.
-    /// - Tag:saveExchanges
     func saveExchanges(for match: GKTurnBasedMatch) {
         // Check whether the local player is the current participant who can save exchanges.
         guard myTurn else { return }

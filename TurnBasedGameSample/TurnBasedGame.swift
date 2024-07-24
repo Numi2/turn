@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 The main class that implements the logic for a simple turn-based game.
@@ -9,7 +9,6 @@ import Foundation
 @preconcurrency import GameKit
 import SwiftUI
 
-/// - Tag:TurnBasedGame
 @MainActor
 class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, ObservableObject {
     // The game interface state.
@@ -85,7 +84,6 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     }
     
     /// Authenticates the local player and registers for turn-based events.
-    /// - Tag:authenticatePlayer
     func authenticatePlayer() {
         // Set the authentication handler that GameKit invokes.
         GKLocalPlayer.local.authenticateHandler = { viewController, error in
@@ -130,7 +128,6 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     /// Handles when the player initiates a match in the game and using Game Center.
     /// - Parameter playersToInvite: The players that the local player wants to invite.
     /// Provide this parameter when the player has selected players using Game Center.
-    ///- Tag:startMatch
     func startMatch(_ playersToInvite: [GKPlayer]? = nil) {
         // Initialize the match data.
         count = 0
@@ -166,7 +163,6 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     }
     
     /// Takes the local player's turn.
-    /// - Tag:takeTurn
     func takeTurn() async {
         // Handle all the cases that can occur when the player takes their turn:
         // 1. Resets the interface if GameKit fails to load the match.
@@ -233,7 +229,6 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     }
     
     /// Quits the game by forfeiting the match.
-    /// - Tag:forfeitMatch
     func forfeitMatch() async {
         // Check whether there's an ongoing match.
         guard currentMatchID != nil else { return }
@@ -306,7 +301,6 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     /// Sends a message from one player to another.
     ///
     /// - Parameter content: The message to send to the other player.
-    /// - Tag:sendMessage
     func sendMessage(content: String) async {
         // Check whether there's an ongoing match.
         guard currentMatchID != nil else { return }
