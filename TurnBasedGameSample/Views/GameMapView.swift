@@ -24,9 +24,13 @@ struct GameMapView: View {
             // Map display
             ScrollView([.horizontal, .vertical], showsIndicators: false) {
                 ZStack {
-                    // Background
-                    Color(.systemGray6)
-                        .ignoresSafeArea()
+                    // Enhanced background with subtle pattern
+                    LinearGradient(
+                        colors: [Color(.systemGray6), Color(.systemGray5)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
                     
                     // Hexagon map
                     LazyVStack(spacing: -hexSpacing * 0.25) {
@@ -39,6 +43,13 @@ struct GameMapView: View {
                 .frame(minWidth: mapWidth, minHeight: mapHeight)
             }
             .clipped()
+            .background(
+                LinearGradient(
+                    colors: [Color(.systemGray6), Color(.systemGray5)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             
             // Control panel
             controlPanel
@@ -64,144 +75,304 @@ struct GameMapView: View {
     // MARK: - Game Status Bar
     
     private var gameStatusBar: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             HStack {
-                // Current player indicator
-                Text("Turn: \(gameMap.currentPlayer == .player1 ? "Player 1" : "Player 2")")
-                    .font(.headline)
-                    .foregroundColor(gameMap.currentPlayer == .player1 ? .blue : .red)
+                // Current player indicator with enhanced styling
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(gameMap.currentPlayer == .player1 ? .blue : .red)
+                        .frame(width: 12, height: 12)
+                    
+                    Text("Turn: \(gameMap.currentPlayer == .player1 ? "Player 1" : "Player 2")")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(gameMap.currentPlayer == .player1 ? .blue : .red)
+                }
                 
                 Spacer()
                 
-                // Turn number
+                // Turn number with badge style
                 Text("Turn \(gameMap.turnNumber)")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color(.systemGray5))
+                    .cornerRadius(12)
             }
             
             HStack {
-                // Current phase
+                // Current phase with modern styling
                 Text(gameMap.turnPhase.description)
                     .font(.subheadline)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.2))
-                    .cornerRadius(8)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(LinearGradient(
+                                colors: [Color.blue.opacity(0.8), Color.blue.opacity(0.6)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
+                    )
+                    .foregroundColor(.white)
                 
                 Spacer()
                 
-                // Player resources
-                HStack(spacing: 16) {
+                // Enhanced player resources
+                HStack(spacing: 20) {
                     ResourceDisplay(
                         icon: "dollarsign.circle.fill",
                         value: gameMap.currentPlayer == .player1 ? gameMap.player1Gold : gameMap.player2Gold,
-                        color: .yellow
+                        color: .yellow,
+                        label: "Gold"
                     )
                     
                     ResourceDisplay(
                         icon: "house.fill",
                         value: gameMap.currentPlayer == .player1 ? gameMap.player1Houses : gameMap.player2Houses,
-                        color: .green
+                        color: .green,
+                        label: "Houses"
                     )
                 }
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .padding(16)
+        .background(
+            LinearGradient(
+                colors: [Color(.systemGray6), Color(.systemGray5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
     
     // MARK: - Control Panel
     
     private var controlPanel: some View {
-        VStack(spacing: 12) {
-            // Selected unit info
+        VStack(spacing: 16) {
+            // Selected unit info with enhanced styling
             if let selectedUnit = gameMap.selectedUnit {
                 selectedUnitInfo(selectedUnit)
             }
             
-            // Action buttons
+            // Modern action buttons
             HStack(spacing: 12) {
                 // Move/Attack buttons
                 if let selectedUnit = gameMap.selectedUnit {
-                    Button("Move") {
+                    Button {
                         gameMap.gameMode = .moveUnit
                         updateHighlights()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "figure.walk")
+                                .font(.headline)
+                            Text("Move")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(selectedUnit.canMove && gameMap.turnPhase == .move ? 
+                                      LinearGradient(colors: [.blue, .blue.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
+                                      LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.2)], startPoint: .top, endPoint: .bottom))
+                        )
+                        .foregroundColor(selectedUnit.canMove && gameMap.turnPhase == .move ? .white : .gray)
                     }
                     .disabled(!selectedUnit.canMove || gameMap.turnPhase != .move)
-                    .buttonStyle(ActionButtonStyle(color: .blue))
                     
-                    Button("Attack") {
+                    Button {
                         gameMap.gameMode = .attackUnit
                         updateHighlights()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "sword.fill")
+                                .font(.headline)
+                            Text("Attack")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(selectedUnit.canAttack && gameMap.turnPhase == .combat ? 
+                                      LinearGradient(colors: [.red, .red.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
+                                      LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.2)], startPoint: .top, endPoint: .bottom))
+                        )
+                        .foregroundColor(selectedUnit.canAttack && gameMap.turnPhase == .combat ? .white : .gray)
                     }
                     .disabled(!selectedUnit.canAttack || gameMap.turnPhase != .combat)
-                    .buttonStyle(ActionButtonStyle(color: .red))
                 }
                 
                 // Build button
-                Button("Build") {
+                Button {
                     if selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) {
                         showBuildMenu = true
                     }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "hammer.fill")
+                            .font(.headline)
+                        Text("Build")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(gameMap.turnPhase == .build && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) ? 
+                                  LinearGradient(colors: [.green, .green.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
+                                  LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.2)], startPoint: .top, endPoint: .bottom))
+                    )
+                    .foregroundColor(gameMap.turnPhase == .build && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) ? .white : .gray)
                 }
                 .disabled(gameMap.turnPhase != .build || selectedCoordinate == nil || !gameMap.isEmpty(at: selectedCoordinate!))
-                .buttonStyle(ActionButtonStyle(color: .green))
-                
-                Spacer()
                 
                 // Next phase button
-                Button("Next Phase") {
+                Button {
                     gameMap.nextPhase()
                     clearSelection()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.right.circle.fill")
+                            .font(.headline)
+                        Text("Next Phase")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(LinearGradient(colors: [.purple, .purple.opacity(0.8)], startPoint: .top, endPoint: .bottom))
+                    )
+                    .foregroundColor(.white)
                 }
-                .buttonStyle(ActionButtonStyle(color: .purple))
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .padding(16)
+        .background(
+            LinearGradient(
+                colors: [Color(.systemGray6), Color(.systemGray5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
     
     // MARK: - Helper Views
     
     private func selectedUnitInfo(_ unit: GameUnit) -> some View {
-        HStack {
-            Text(unit.emoji)
-                .font(.title2)
+        HStack(spacing: 12) {
+            // Unit icon with background
+            ZStack {
+                Circle()
+                    .fill(unit.color.opacity(0.2))
+                    .frame(width: 50, height: 50)
+                
+                Text(unit.emoji)
+                    .font(.title)
+            }
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(unit.displayName)
                     .font(.headline)
+                    .fontWeight(.semibold)
                 
-                HStack {
-                    Text("HP: \(unit.currentHealth)/\(unit.maxHealth)")
-                    if unit.attack > 0 {
-                        Text("ATK: \(unit.attack)")
+                HStack(spacing: 12) {
+                    // Health bar
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Health")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        
+                        HStack(spacing: 4) {
+                            ProgressView(value: Double(unit.currentHealth), total: Double(unit.maxHealth))
+                                .progressViewStyle(LinearProgressViewStyle(tint: .red))
+                                .frame(width: 60)
+                            
+                            Text("\(unit.currentHealth)/\(unit.maxHealth)")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
                     }
+                    
+                    if unit.attack > 0 {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Attack")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                            
+                            HStack(spacing: 2) {
+                                Image(systemName: "sword.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                                Text("\(unit.attack)")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                        }
+                    }
+                    
                     if unit.movementRange > 0 {
-                        Text("MOV: \(unit.movementRange)")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Movement")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                            
+                            HStack(spacing: 2) {
+                                Image(systemName: "figure.walk")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                                Text("\(unit.movementRange)")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                        }
                     }
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
             }
             
             Spacer()
             
-            // Unit status indicators
-            VStack(alignment: .trailing, spacing: 2) {
+            // Unit status indicators with better styling
+            VStack(alignment: .trailing, spacing: 6) {
                 if unit.hasMovedThisTurn {
-                    Image(systemName: "figure.walk")
-                        .foregroundColor(.orange)
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                        Text("Moved")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 if unit.hasAttackedThisTurn {
-                    Image(systemName: "sword.fill")
-                        .foregroundColor(.red)
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                        Text("Attacked")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
         }
-        .padding()
-        .background(unit.color.opacity(0.1))
-        .cornerRadius(8)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(unit.color.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(unit.color.opacity(0.3), lineWidth: 1)
+                )
+        )
     }
     
     // MARK: - Map Layout
@@ -352,32 +523,25 @@ struct ResourceDisplay: View {
     let icon: String
     let value: Int
     let color: Color
+    let label: String
     
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-            Text("\(value)")
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                Text("\(value)")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+            }
+            Text(label)
                 .font(.caption)
-                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
         }
     }
 }
 
-struct ActionButtonStyle: ButtonStyle {
-    let color: Color
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.caption)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(color.opacity(configuration.isPressed ? 0.8 : 0.6))
-            .foregroundColor(.white)
-            .cornerRadius(6)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-    }
-}
+
 
 // MARK: - Preview
 

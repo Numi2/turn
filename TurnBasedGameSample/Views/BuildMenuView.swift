@@ -21,22 +21,22 @@ struct BuildMenuView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Header
+                // Enhanced Header
                 buildMenuHeader
                 
                 // Unit categories
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
                         // Soldiers section
-                        unitSection(title: "Soldiers", unitTypes: soldierTypes, color: .blue)
+                        unitSection(title: "⚔️ Soldiers", unitTypes: soldierTypes, color: .blue)
                         
                         // Buildings section
-                        unitSection(title: "Buildings", unitTypes: buildingTypes, color: .green)
+                        unitSection(title: "🏠 Buildings", unitTypes: buildingTypes, color: .green)
                     }
-                    .padding()
+                    .padding(20)
                 }
                 
-                // Build button
+                // Enhanced build button
                 buildButton
             }
             .navigationTitle("Build Units")
@@ -46,6 +46,7 @@ struct BuildMenuView: View {
                     Button("Cancel") {
                         isPresented = false
                     }
+                    .foregroundColor(.red)
                 }
             }
         }
@@ -54,31 +55,69 @@ struct BuildMenuView: View {
     // MARK: - Header
     
     private var buildMenuHeader: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             HStack {
-                Text("Position: \(targetPosition.description)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Build Location")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("Position: \(targetPosition.description)")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
                 
                 Spacer()
                 
-                HStack(spacing: 4) {
+                HStack(spacing: 8) {
                     Image(systemName: "dollarsign.circle.fill")
                         .foregroundColor(.yellow)
-                    Text("\(currentPlayerGold)")
-                        .font(.headline)
-                        .fontWeight(.semibold)
+                        .font(.title2)
+                    
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("Gold")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("\(currentPlayerGold)")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    }
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.yellow.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                        )
+                )
             }
             
             if !gameMap.isEmpty(at: targetPosition) {
-                Text("⚠️ Position occupied")
-                    .font(.caption)
-                    .foregroundColor(.red)
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                    Text("Position occupied - Cannot build here")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.red.opacity(0.1))
+                )
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .padding(20)
+        .background(
+            LinearGradient(
+                colors: [Color(.systemGray6), Color(.systemGray5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
     
     // MARK: - Unit Sections
@@ -184,42 +223,75 @@ struct BuildMenuView: View {
     // MARK: - Build Button
     
     private var buildButton: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             if let selectedType = selectedUnitType {
                 let cost = gameMap.getUnitCost(type: selectedType, for: gameMap.currentPlayer)
                 
                 HStack {
-                    Text("Build \(selectedType.rawValue.capitalized)")
-                        .font(.headline)
+                    HStack(spacing: 8) {
+                        let unit = GameUnit.create(type: selectedType, owner: gameMap.currentPlayer, position: targetPosition)
+                        Text(unit.emoji)
+                            .font(.title2)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Build \(selectedType.rawValue.capitalized)")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            Text("Ready to construct")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                     
                     Spacer()
                     
-                    HStack(spacing: 4) {
+                    HStack(spacing: 6) {
                         Image(systemName: "dollarsign.circle.fill")
                             .foregroundColor(.yellow)
                         Text("\(cost)")
                             .font(.headline)
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                     }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.yellow.opacity(0.2))
+                    )
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 20)
             }
             
             Button(action: buildSelectedUnit) {
-                Text(selectedUnitType != nil ? "Build Unit" : "Select a Unit")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(canBuildSelectedUnit ? .blue : .gray)
-                    )
+                HStack(spacing: 8) {
+                    Image(systemName: canBuildSelectedUnit ? "hammer.fill" : "questionmark.circle")
+                        .font(.headline)
+                    
+                    Text(selectedUnitType != nil ? "Build Unit" : "Select a Unit to Build")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(canBuildSelectedUnit ? 
+                              LinearGradient(colors: [.blue, .blue.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
+                              LinearGradient(colors: [.gray.opacity(0.6), .gray.opacity(0.4)], startPoint: .top, endPoint: .bottom))
+                )
             }
             .disabled(!canBuildSelectedUnit)
-            .padding()
+            .padding(.horizontal, 20)
         }
-        .background(Color(.systemGray6))
+        .padding(.vertical, 16)
+        .background(
+            LinearGradient(
+                colors: [Color(.systemGray6), Color(.systemGray5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
     
     // MARK: - Computed Properties

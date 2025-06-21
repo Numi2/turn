@@ -103,11 +103,11 @@ struct HexagonView: View {
     
     private var hexagonFillColor: Color {
         if let unit = unit {
-            return unit.color.opacity(0.3)
+            return unit.color.opacity(0.2)
         } else if isHighlighted {
-            return highlightColor.opacity(0.2)
+            return highlightColor.opacity(0.25)
         } else {
-            return Color(.systemGray6)
+            return Color.white.opacity(0.8)
         }
     }
     
@@ -115,11 +115,11 @@ struct HexagonView: View {
         if isSelected {
             return .white
         } else if let unit = unit {
-            return unit.color
+            return unit.color.opacity(0.8)
         } else if isHighlighted {
             return highlightColor
         } else {
-            return Color(.systemGray4)
+            return Color(.systemGray3)
         }
     }
     
