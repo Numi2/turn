@@ -132,7 +132,7 @@ extension TurnBasedGame {
             
             // The player who started the match is typically player1
             // But for now, we'll use alphabetical order as a consistent way to assign sides
-            let isLocalPlayerFirst = localPlayerName < opponentPlayerName
+            _ = localPlayerName < opponentPlayerName
             
             // Update UI to reflect current game state
             // The actual game logic uses the gameMap's currentPlayer property

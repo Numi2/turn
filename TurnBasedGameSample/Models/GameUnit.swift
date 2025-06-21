@@ -157,7 +157,7 @@ class GameUnit: Identifiable, Codable, ObservableObject {
         var frontier = [position]
         var visited = Set<HexCoordinate>([position])
         
-        for step in 1...movementRange {
+        for _ in 1...movementRange {
             var nextFrontier: [HexCoordinate] = []
             
             for currentPos in frontier {

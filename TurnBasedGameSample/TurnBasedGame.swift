@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, ObservableObject {
+class TurnBasedGame: NSObject, GKMatchDelegate, ObservableObject {
     // The game interface state.
     @Published var matchAvailable = false
     @Published var playingGame = false
@@ -112,14 +112,17 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
             
             // Load the local player's avatar.
             GKLocalPlayer.local.loadPhoto(for: GKPlayer.PhotoSize.small) { image, error in
-                if let image {
-                    // Create a Participant object to store the local player data.
-                    self.localParticipant = Participant(player: GKLocalPlayer.local,
-                                                   avatar: Image(uiImage: image))
-                }
-                if let error {
-                    // Handle an error if it occurs.
-                    print("Error: \(error.localizedDescription).")
+                // Ensure any UI-related updates happen on the main actor.
+                Task { @MainActor in
+                    if let image {
+                        // Create a Participant object to store the local player data.
+                        self.localParticipant = Participant(player: GKLocalPlayer.local,
+                                                           avatar: Image(uiImage: image))
+                    }
+                    if let error {
+                        // Handle an error if it occurs.
+                        print("Error: \(error.localizedDescription).")
+                    }
                 }
             }
             
@@ -397,3 +400,7 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
         }
     }
 }
+
+// MARK: - Main-actor isolated GKLocalPlayerListener conformance
+
+extension TurnBasedGame: @MainActor GKLocalPlayerListener {}

@@ -90,6 +90,7 @@ class GameMap: ObservableObject, Codable {
         return validPositions.contains(position)
     }
     
+    @discardableResult
     func placeUnit(_ unit: GameUnit, at position: HexCoordinate) -> Bool {
         guard isValidPosition(position) && isEmpty(at: position) else {
             return false
@@ -361,3 +362,4 @@ class GameMap: ObservableObject, Codable {
         try container.encode(player2Gold,  forKey: .player2Gold)
     }
 }
+

@@ -39,7 +39,7 @@ class GameAI: ObservableObject {
         switch gameMap.turnPhase {
         case .income:
             // Income is automatic, just proceed
-            await MainActor.run {
+            _ = await MainActor.run {
                 gameMap.nextPhase()
             }
             
@@ -53,7 +53,7 @@ class GameAI: ObservableObject {
             await performCombatPhase(gameMap: gameMap)
             
         case .endTurn:
-            await MainActor.run {
+            _ = await MainActor.run {
                 gameMap.nextPhase()
             }
         }
@@ -63,9 +63,7 @@ class GameAI: ObservableObject {
     
     private func performBuildPhase(gameMap: GameMap) async {
         let myGold = playerSide == .player1 ? gameMap.player1Gold : gameMap.player2Gold
-        let myUnits = gameMap.getUnits(for: playerSide)
         let myHouses = gameMap.countUnits(of: .house, for: playerSide)
-        let enemyUnits = gameMap.getUnits(for: playerSide.opponent)
         
         // Ultra AI strategy: Aggressive expansion and military focus
         var builtSomething = false
@@ -73,7 +71,7 @@ class GameAI: ObservableObject {
         // Priority 1: Build houses for economy (if we have less than 3)
         if myHouses < 3 && myGold >= gameMap.getUnitCost(type: .house, for: playerSide) {
             if let buildPosition = findBestBuildPosition(for: .house, gameMap: gameMap) {
-                await MainActor.run {
+                _ = await MainActor.run {
                     gameMap.buildUnit(type: .house, at: buildPosition, for: playerSide)
                 }
                 builtSomething = true
@@ -84,7 +82,7 @@ class GameAI: ObservableObject {
         let threatLevel = assessThreatLevel(gameMap: gameMap)
         if threatLevel > 2 && myGold >= gameMap.getUnitCost(type: .watchtower, for: playerSide) {
             if let buildPosition = findBestDefensePosition(gameMap: gameMap) {
-                await MainActor.run {
+                _ = await MainActor.run {
                     gameMap.buildUnit(type: .watchtower, at: buildPosition, for: playerSide)
                 }
                 builtSomething = true
@@ -96,14 +94,14 @@ class GameAI: ObservableObject {
             let unitToBuild = chooseOptimalMilitaryUnit(gameMap: gameMap)
             if myGold >= gameMap.getUnitCost(type: unitToBuild, for: playerSide) {
                 if let buildPosition = findBestBuildPosition(for: unitToBuild, gameMap: gameMap) {
-                    await MainActor.run {
+                    _ = await MainActor.run {
                         gameMap.buildUnit(type: unitToBuild, at: buildPosition, for: playerSide)
                     }
                 }
             }
         }
         
-        await MainActor.run {
+        _ = await MainActor.run {
             gameMap.nextPhase()
         }
     }
@@ -114,7 +112,7 @@ class GameAI: ObservableObject {
         for unit in myUnits {
             let optimalMove = findOptimalMove(for: unit, gameMap: gameMap)
             if let moveTarget = optimalMove {
-                await MainActor.run {
+                _ = await MainActor.run {
                     gameMap.moveUnit(from: unit.position, to: moveTarget)
                 }
                 // Small delay between moves for visibility
@@ -122,7 +120,7 @@ class GameAI: ObservableObject {
             }
         }
         
-        await MainActor.run {
+        _ = await MainActor.run {
             gameMap.nextPhase()
         }
     }
@@ -136,7 +134,7 @@ class GameAI: ObservableObject {
         for unit in sortedUnits {
             let targets = unit.possibleTargets(on: gameMap)
             if let bestTarget = chooseBestTarget(targets: Array(targets), gameMap: gameMap) {
-                await MainActor.run {
+                _ = await MainActor.run {
                     gameMap.attackUnit(attacker: unit.position, target: bestTarget)
                 }
                 // Small delay between attacks for visibility
@@ -144,7 +142,7 @@ class GameAI: ObservableObject {
             }
         }
         
-        await MainActor.run {
+        _ = await MainActor.run {
             gameMap.nextPhase()
         }
     }
@@ -153,7 +151,6 @@ class GameAI: ObservableObject {
     
     private func chooseOptimalMilitaryUnit(gameMap: GameMap) -> UnitType {
         let myGold = playerSide == .player1 ? gameMap.player1Gold : gameMap.player2Gold
-        let enemyUnits = gameMap.getUnits(for: playerSide.opponent)
         
         // Ultra AI prefers powerful units
         if myGold >= 100 {
@@ -169,7 +166,6 @@ class GameAI: ObservableObject {
     
     private func findBestBuildPosition(for unitType: UnitType, gameMap: GameMap) -> HexCoordinate? {
         let myUnits = gameMap.getUnits(for: playerSide)
-        let myPositions = Set(myUnits.map { $0.position })
         
         // Find empty positions near our units
         var candidates: [HexCoordinate] = []
@@ -263,7 +259,6 @@ class GameAI: ObservableObject {
     
     private func assessThreatLevel(gameMap: GameMap) -> Int {
         let enemyUnits = gameMap.getUnits(for: playerSide.opponent)
-        let myUnits = gameMap.getUnits(for: playerSide)
         
         var threatLevel = 0
         
