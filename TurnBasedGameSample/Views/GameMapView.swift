@@ -102,8 +102,8 @@ struct GameMapView: View {
             }
             
             HStack {
-                // Current phase with modern styling
-                Text(gameMap.turnPhase.description)
+                // Indicator of player's turn (single unified phase)
+                Text(gameMap.currentPlayer == .player1 ? "Your Turn" : "Opponent Turn")
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 16)
@@ -165,7 +165,7 @@ struct GameMapView: View {
                         title: "Move",
                         icon: "figure.walk",
                         color: .blue,
-                        isEnabled: selectedUnit.canMove && gameMap.turnPhase == .move
+                        isEnabled: selectedUnit.canMove && gameMap.currentPlayer == .player1
                     ) {
                         gameMap.gameMode = .moveUnit
                         updateHighlights()
@@ -175,7 +175,7 @@ struct GameMapView: View {
                         title: "Attack", 
                         icon: "sword.fill",
                         color: .red,
-                        isEnabled: selectedUnit.canAttack && gameMap.turnPhase == .combat
+                        isEnabled: selectedUnit.canAttack && gameMap.currentPlayer == .player1
                     ) {
                         gameMap.gameMode = .attackUnit
                         updateHighlights()
@@ -187,22 +187,22 @@ struct GameMapView: View {
                     title: "Build",
                     icon: "hammer.fill", 
                     color: .green,
-                    isEnabled: gameMap.turnPhase == .build && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!)
+                    isEnabled: gameMap.currentPlayer == .player1 && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!)
                 ) {
                     if selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) {
                         showBuildMenu = true
                     }
                 }
                 
-                // Next phase button
+                // End turn button
                 ModernButton(
-                    title: "Next Phase",
-                    icon: "arrow.right.circle.fill",
+                    title: "Next Turn",
+                    icon: "arrowshape.turn.up.forward.fill",
                     color: .purple,
-                    isEnabled: true,
+                    isEnabled: gameMap.currentPlayer == .player1,
                     style: .prominent
                 ) {
-                    gameMap.nextPhase()
+                    gameMap.endTurn()
                     clearSelection()
                 }
             }

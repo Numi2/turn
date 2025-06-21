@@ -397,7 +397,7 @@ extension GameMap {
         player1Gold = config.player1StartGold
         player2Gold = config.player2StartGold
         currentPlayer = .player1
-        turnPhase = .income
+        turnPhase = .build
         turnNumber = 1
         
         // Place Player 1 units
