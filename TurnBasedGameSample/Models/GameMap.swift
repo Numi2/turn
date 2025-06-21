@@ -47,7 +47,7 @@ class GameMap: ObservableObject, Codable {
     // Game state
     @Published var units: [HexCoordinate: GameUnit] = [:]
     @Published var currentPlayer: PlayerSide = .player1
-    @Published var turnPhase: TurnPhase = .income
+    @Published var turnPhase: TurnPhase = .build
     @Published var turnNumber: Int = 1
     
     // Player resources
@@ -207,7 +207,8 @@ class GameMap: ObservableObject, Codable {
     func nextPhase() {
         switch turnPhase {
         case .income:
-            collectIncome()
+            // Income is now collected at the beginning of the turn via `endTurn()`
+            // Simply advance to Build phase if ever encountered
             turnPhase = .build
         case .build:
             turnPhase = .move
@@ -234,8 +235,11 @@ class GameMap: ObservableObject, Codable {
         // Switch to next player
         currentPlayer = currentPlayer.opponent
         
-        // Reset to income phase
-        turnPhase = .income
+        // Collect income for the player whose turn is beginning
+        collectIncome()
+        
+        // Begin the new turn directly in the Build phase
+        turnPhase = .build
         
         // Increment turn number when player 1's turn starts
         if currentPlayer == .player1 {

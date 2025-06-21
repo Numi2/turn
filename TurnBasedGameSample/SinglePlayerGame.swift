@@ -52,7 +52,8 @@ class SinglePlayerGame: ObservableObject {
         
         // Player 1 is human, Player 2 is AI
         gameMap.currentPlayer = .player1
-        gameMap.turnPhase = .income
+        gameMap.turnPhase = .build
+        gameMap.collectIncome()
         
         // Clear old subscriptions and set up new ones
         cancellables.removeAll()
