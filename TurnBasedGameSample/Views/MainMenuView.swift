@@ -14,14 +14,11 @@ struct MainMenuView: View {
     var body: some View {
         VStack(spacing: 30) {
             // Game title
-            VStack(spacing: 10) {
+            VStack {
                 Text("⚔️ Hexagon Strategy")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                
+                    .font(.largeTitle.bold())
                 Text("Turn-Based Strategy Game")
-                    .font(.largeTitle)
+                    .font(.headline)
                     .foregroundColor(.secondary)
             }
             .padding(.top, 50)
@@ -31,88 +28,30 @@ struct MainMenuView: View {
             // Game mode buttons
             VStack(spacing: 20) {
                 // Single Player Button
-                Button(action: {
+                Button {
                     showSinglePlayer = true
-                }) {
-                    if #available(iOS 16.0, *) {
-                        HStack {
-                            Image(systemName: "person.fill")
-                                .font(.title2)
-                            Text("Single Player")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                        }
+                } label: {
+                    Label("Single Player", systemImage: "person.fill")
+                        .font(.title2)
+                      
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.blue.gradient)
-                        )
-                        .foregroundColor(.white)
-                    } else {
-                        // Fallback on earlier versions
-                    };if #available(iOS 16.0, *) {
-                        HStack {
-                            Image(systemName: "person.fill")
-                                .font(.title2)
-                            Text("Single Player")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.blue.gradient)
-                        )
-                        .foregroundColor(.white)
-                    } else {
-                        // Fallback on earlier versions
-                    }
                 }
-                .shadow(radius: 5)
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .controlSize(.large)
                 
                 // Multiplayer Button
-                Button(action: {
+                Button {
                     showMultiplayer = true
-                }) {
-                    if #available(iOS 16.0, *) {
-                        HStack {
-                            Image(systemName: "person.2.fill")
-                                .font(.title2)
-                            Text("Multiplayer")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                        }
+                } label: {
+                    Label("Multiplayer", systemImage: "person.2.fill")
+                        .font(.title2)
+                     
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.green.gradient)
-                        )
-                        .foregroundColor(.white)
-                    } else {
-                        // Fallback on earlier versions
-                    };if #available(iOS 16.0, *) {
-                        HStack {
-                            Image(systemName: "person.2.fill")
-                                .font(.title2)
-                            Text("Multiplayer")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.green.gradient)
-                        )
-                        .foregroundColor(.white)
-                    } else {
-                        // Fallback on earlier versions
-                    }
                 }
-                .shadow(radius: 5)
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .controlSize(.large)
             }
             .padding(.horizontal, 40)
             
@@ -140,10 +79,11 @@ struct MainMenuView: View {
         }
         .background(
             LinearGradient(
-                colors: [Color.blue.opacity(0.1), Color.green.opacity(0.1)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                colors: [Color(white: 0.95), Color(white: 1.0)],
+                startPoint: .top,
+                endPoint: .bottom
             )
+            .ignoresSafeArea()
         )
         .fullScreenCover(isPresented: $showSinglePlayer) {
             SinglePlayerView()
