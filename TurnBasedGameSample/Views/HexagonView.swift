@@ -39,10 +39,11 @@ struct HexagonView: View {
             // Base hexagon shape
             HexagonShape()
                 .fill(hexagonFillColor)
-                .stroke(hexagonStrokeColor, lineWidth: strokeWidth)
                 .frame(width: size, height: size)
-                .scaleEffect(isSelected ? 1.1 : 1.0)
-                .animation(.easeInOut(duration: 0.2), value: isSelected)
+                .overlay(
+                    HexagonShape()
+                        .stroke(hexagonStrokeColor, style: StrokeStyle(lineWidth: strokeWidth))
+                )
             
             // Unit display
             if let unit = unit {
@@ -76,7 +77,7 @@ struct HexagonView: View {
             // Selection indicator
             if isSelected {
                 HexagonShape()
-                    .stroke(Color.white, lineWidth: 3)
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: 3))
                     .frame(width: size * 1.1, height: size * 1.1)
                     .shadow(color: .white, radius: 2)
             }
@@ -88,7 +89,7 @@ struct HexagonView: View {
                     .frame(width: size, height: size)
                     .overlay(
                         HexagonShape()
-                            .stroke(highlightColor, lineWidth: 2)
+                            .stroke(highlightColor, style: StrokeStyle(lineWidth: 2))
                             .frame(width: size, height: size)
                     )
             }

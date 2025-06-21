@@ -9,7 +9,7 @@ import Foundation
 @preconcurrency import GameKit
 import SwiftUI
 
-extension TurnBasedGame: GKTurnBasedEventListener {
+extension TurnBasedGame: @MainActor GKTurnBasedEventListener {
     
     /// Creates a match and presents a matchmaker view controller.
     func player(_ player: GKPlayer, didRequestMatchWithOtherPlayers playersToInvite: [GKPlayer]) {
@@ -206,3 +206,4 @@ extension TurnBasedGame: GKTurnBasedEventListener {
         }
     }
 }
+

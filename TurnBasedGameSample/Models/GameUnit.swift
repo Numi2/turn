@@ -93,6 +93,40 @@ class GameUnit: Identifiable, Codable, ObservableObject {
         self.attackRange = attackRange
     }
     
+    // MARK: - Codable
+    required convenience init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let type = try container.decode(UnitType.self, forKey: .type)
+        let owner = try container.decode(PlayerSide.self, forKey: .owner)
+        let position = try container.decode(HexCoordinate.self, forKey: .position)
+        
+        let currentHealth = try container.decode(Int.self, forKey: .currentHealth)
+        let hasMovedThisTurn = try container.decode(Bool.self, forKey: .hasMovedThisTurn)
+        let hasAttackedThisTurn = try container.decode(Bool.self, forKey: .hasAttackedThisTurn)
+        
+        let maxHealth = try container.decode(Int.self, forKey: .maxHealth)
+        let attack = try container.decode(Int.self, forKey: .attack)
+        let cost = try container.decode(Int.self, forKey: .cost)
+        let movementRange = try container.decode(Int.self, forKey: .movementRange)
+        let attackRange = try container.decode(Int.self, forKey: .attackRange)
+        
+        // Call the designated initializer to satisfy all `let` properties
+        self.init(type: type,
+                  owner: owner,
+                  position: position,
+                  maxHealth: maxHealth,
+                  attack: attack,
+                  cost: cost,
+                  movementRange: movementRange,
+                  attackRange: attackRange)
+        
+        // Apply the remaining mutable state decoded from JSON
+        self.currentHealth = currentHealth
+        self.hasMovedThisTurn = hasMovedThisTurn
+        self.hasAttackedThisTurn = hasAttackedThisTurn
+    }
+    
     // MARK: - Computed Properties
     
     var isAlive: Bool {
@@ -203,23 +237,6 @@ extension GameUnit {
         case maxHealth, attack, cost, movementRange, attackRange
     }
     
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        type = try container.decode(UnitType.self, forKey: .type)
-        owner = try container.decode(PlayerSide.self, forKey: .owner)
-        position = try container.decode(HexCoordinate.self, forKey: .position)
-        currentHealth = try container.decode(Int.self, forKey: .currentHealth)
-        hasMovedThisTurn = try container.decode(Bool.self, forKey: .hasMovedThisTurn)
-        hasAttackedThisTurn = try container.decode(Bool.self, forKey: .hasAttackedThisTurn)
-        
-        maxHealth = try container.decode(Int.self, forKey: .maxHealth)
-        attack = try container.decode(Int.self, forKey: .attack)
-        cost = try container.decode(Int.self, forKey: .cost)
-        movementRange = try container.decode(Int.self, forKey: .movementRange)
-        attackRange = try container.decode(Int.self, forKey: .attackRange)
-    }
-    
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
@@ -274,3 +291,4 @@ extension GameUnit {
         return 30 + (existingHouses * 20)
     }
 }
+

@@ -21,7 +21,7 @@ struct MainMenuView: View {
                     .foregroundColor(.primary)
                 
                 Text("Turn-Based Strategy Game")
-                    .font(.subtitle)
+                    .font(.largeTitle)
                     .foregroundColor(.secondary)
             }
             .padding(.top, 50)
@@ -34,20 +34,41 @@ struct MainMenuView: View {
                 Button(action: {
                     showSinglePlayer = true
                 }) {
-                    HStack {
-                        Image(systemName: "person.fill")
-                            .font(.title2)
-                        Text("Single Player")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                    if #available(iOS 16.0, *) {
+                        HStack {
+                            Image(systemName: "person.fill")
+                                .font(.title2)
+                            Text("Single Player")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.blue.gradient)
+                        )
+                        .foregroundColor(.white)
+                    } else {
+                        // Fallback on earlier versions
+                    };if #available(iOS 16.0, *) {
+                        HStack {
+                            Image(systemName: "person.fill")
+                                .font(.title2)
+                            Text("Single Player")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.blue.gradient)
+                        )
+                        .foregroundColor(.white)
+                    } else {
+                        // Fallback on earlier versions
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.blue.gradient)
-                    )
-                    .foregroundColor(.white)
                 }
                 .shadow(radius: 5)
                 
@@ -55,20 +76,41 @@ struct MainMenuView: View {
                 Button(action: {
                     showMultiplayer = true
                 }) {
-                    HStack {
-                        Image(systemName: "person.2.fill")
-                            .font(.title2)
-                        Text("Multiplayer")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                    if #available(iOS 16.0, *) {
+                        HStack {
+                            Image(systemName: "person.2.fill")
+                                .font(.title2)
+                            Text("Multiplayer")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.green.gradient)
+                        )
+                        .foregroundColor(.white)
+                    } else {
+                        // Fallback on earlier versions
+                    };if #available(iOS 16.0, *) {
+                        HStack {
+                            Image(systemName: "person.2.fill")
+                                .font(.title2)
+                            Text("Multiplayer")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.green.gradient)
+                        )
+                        .foregroundColor(.white)
+                    } else {
+                        // Fallback on earlier versions
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.green.gradient)
-                    )
-                    .foregroundColor(.white)
                 }
                 .shadow(radius: 5)
             }

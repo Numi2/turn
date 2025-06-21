@@ -317,46 +317,47 @@ class GameMap: ObservableObject, Codable {
         
         return nil
     }
-}
-
-// MARK: - Codable Implementation
-
-extension GameMap {
+    
+    // MARK: - Codable Implementation
     enum CodingKeys: String, CodingKey {
         case mapRadius, units, currentPlayer, turnPhase, turnNumber
         case player1Gold, player2Gold
     }
-    
-    required init(from decoder: Decoder) throws {
+
+    // Custom decoder – calls the designated initializer to ensure all
+    // `let` properties are set correctly before the remaining state is applied.
+    required convenience init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        mapRadius = try container.decode(Int.self, forKey: .mapRadius)
-        validPositions = HexCoordinate.generateHexMap(radius: mapRadius)
-        
+
+        // Decode values that are needed for the designated initializer first
+        let radius = try container.decode(Int.self, forKey: .mapRadius)
+        self.init(radius: radius)
+
+        // Remaining persisted state
         let unitsArray = try container.decode([GameUnit].self, forKey: .units)
-        units = Dictionary(uniqueKeysWithValues: unitsArray.map { ($0.position, $0) })
-        
-        currentPlayer = try container.decode(PlayerSide.self, forKey: .currentPlayer)
-        turnPhase = try container.decode(TurnPhase.self, forKey: .turnPhase)
-        turnNumber = try container.decode(Int.self, forKey: .turnNumber)
-        player1Gold = try container.decode(Int.self, forKey: .player1Gold)
-        player2Gold = try container.decode(Int.self, forKey: .player2Gold)
-        
-        // Initialize UI state
-        selectedUnit = nil
-        highlightedPositions = []
-        gameMode = .selectUnit
+        self.units = Dictionary(uniqueKeysWithValues: unitsArray.map { ($0.position, $0) })
+
+        self.currentPlayer  = try container.decode(PlayerSide.self, forKey: .currentPlayer)
+        self.turnPhase      = try container.decode(TurnPhase.self, forKey: .turnPhase)
+        self.turnNumber     = try container.decode(Int.self, forKey: .turnNumber)
+        self.player1Gold    = try container.decode(Int.self, forKey: .player1Gold)
+        self.player2Gold    = try container.decode(Int.self, forKey: .player2Gold)
+
+        // UI-only runtime state – ensure it starts clean.
+        self.selectedUnit = nil
+        self.highlightedPositions = []
+        self.gameMode = .selectUnit
     }
-    
+
+    // Encoder remains straightforward – just mirror the CodingKeys above.
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(mapRadius, forKey: .mapRadius)
+        try container.encode(mapRadius,    forKey: .mapRadius)
         try container.encode(Array(units.values), forKey: .units)
         try container.encode(currentPlayer, forKey: .currentPlayer)
-        try container.encode(turnPhase, forKey: .turnPhase)
-        try container.encode(turnNumber, forKey: .turnNumber)
-        try container.encode(player1Gold, forKey: .player1Gold)
-        try container.encode(player2Gold, forKey: .player2Gold)
+        try container.encode(turnPhase,    forKey: .turnPhase)
+        try container.encode(turnNumber,   forKey: .turnNumber)
+        try container.encode(player1Gold,  forKey: .player1Gold)
+        try container.encode(player2Gold,  forKey: .player2Gold)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 import GameKit
 import SwiftUI
 
-extension TurnBasedGame: GKTurnBasedMatchmakerViewControllerDelegate {
+extension TurnBasedGame: @MainActor GKTurnBasedMatchmakerViewControllerDelegate {
     
     /// Dismisses the view controller when either player cancels matchmaking.
     func turnBasedMatchmakerViewControllerWasCancelled(_ viewController: GKTurnBasedMatchmakerViewController) {
