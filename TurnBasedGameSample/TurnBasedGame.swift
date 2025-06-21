@@ -30,6 +30,10 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     @Published var opponent: Participant? = nil
     @Published var count = 0
     
+    // Strategy game data
+    @Published var gameMap: GameMap = GameMap(radius: 4)
+    @Published var isStrategyGame: Bool = true
+    
     // The messages between players.
     @Published var messages: [Message] = []
     @Published var matchMessage: String? = nil
@@ -81,6 +85,10 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
         count = 0
         youWon = false
         youLost = false
+        
+        // Reset strategy game
+        gameMap = GameMap(radius: 4)
+        isStrategyGame = true
     }
     
     /// Authenticates the local player and registers for turn-based events.
@@ -131,6 +139,10 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
     func startMatch(_ playersToInvite: [GKPlayer]? = nil) {
         // Initialize the match data.
         count = 0
+        
+        // Initialize strategy game
+        gameMap = GameMap(radius: 4)
+        isStrategyGame = true
         
         // Create a match request.
         let request = GKMatchRequest()
@@ -198,8 +210,34 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
             } else {
                 // Otherwise, take the turn and pass to the next participants.
                 
-                // Update the game data.
-                count += 1
+                // Update the game data based on game type
+                if isStrategyGame {
+                    // End the current player's turn in the strategy game
+                    gameMap.endTurn()
+                    
+                    // Check for win condition
+                    if let winner = gameMap.checkWinCondition() {
+                        let isLocalPlayerWinner = (winner == .player1 && myName == localParticipant?.player.displayName) ||
+                                                  (winner == .player2 && myName != localParticipant?.player.displayName)
+                        
+                        if isLocalPlayerWinner {
+                            youWon = true
+                        } else {
+                            youLost = true
+                        }
+                        
+                        // End the match
+                        for participant in activeParticipants {
+                            participant.matchOutcome = isLocalPlayerWinner ? .won : .lost
+                        }
+                        
+                        try await match.endMatchInTurn(withMatch: encodeGameData() ?? match.matchData!)
+                        return
+                    }
+                } else {
+                    // Legacy counter game
+                    count += 1
+                }
                 
                 // Create the game data to store in Game Center.
                 let gameData = (encodeGameData() ?? match.matchData)!
@@ -210,7 +248,8 @@ class TurnBasedGame: NSObject, GKMatchDelegate, GKLocalPlayerListener, Observabl
                 }
 
                 // Set the match message.
-                match.setLocalizableMessageWithKey("This is a match message.", arguments: nil)
+                let messageKey = isStrategyGame ? "Turn completed in strategy game" : "This is a match message."
+                match.setLocalizableMessageWithKey(messageKey, arguments: nil)
 
                 // Save any exchanges.
                 saveExchanges(for: match)

@@ -31,6 +31,10 @@ struct Participant: Identifiable {
 struct GameData: Codable {
     var count: Int
     var items: [String: Int]
+    
+    // New strategy game data
+    var gameMap: GameMap?
+    var gameVersion: Int = 2 // Version 2 for strategy game
 }
 
 extension TurnBasedGame {
@@ -54,7 +58,12 @@ extension TurnBasedGame {
             items[opponentPlayerName] = opponent?.items
         }
         
-        let gameData = GameData(count: count, items: items)
+        let gameData = GameData(
+            count: count, 
+            items: items,
+            gameMap: isStrategyGame ? gameMap : nil,
+            gameVersion: isStrategyGame ? 2 : 1
+        )
         return encode(gameData: gameData)
     }
     
@@ -81,22 +90,54 @@ extension TurnBasedGame {
         let gameData = try? PropertyListDecoder().decode(GameData.self, from: matchData)
         guard let gameData = gameData else { return }
 
-        // Set the match count.
-        count = gameData.count
+        // Determine if this is a strategy game based on version
+        isStrategyGame = gameData.gameVersion >= 2
+        
+        if isStrategyGame, let receivedGameMap = gameData.gameMap {
+            // Update strategy game data
+            gameMap = receivedGameMap
+            
+            // Determine which player is local vs opponent based on current player
+            updatePlayerSideMapping()
+        } else {
+            // Legacy counter game
+            count = gameData.count
 
-        // Set the local player's items.
-        if let localPlayerName = localParticipant?.player.displayName {
-            if let items = gameData.items[localPlayerName] {
-                localParticipant?.items = items
+            // Set the local player's items.
+            if let localPlayerName = localParticipant?.player.displayName {
+                if let items = gameData.items[localPlayerName] {
+                    localParticipant?.items = items
+                }
+            }
+
+            // Set the opponent's items.
+            if let opponentPlayerName = opponent?.player.displayName {
+                if let items = gameData.items[opponentPlayerName] {
+                    opponent?.items = items
+                }
             }
         }
-
-        // Set the opponent's items.
-        if let opponentPlayerName = opponent?.player.displayName {
-            if let items = gameData.items[opponentPlayerName] {
-                opponent?.items = items
-            }
+    }
+    
+    /// Updates the mapping between local/opponent and player1/player2 based on the game state
+    private func updatePlayerSideMapping() {
+        // This method helps ensure the correct player perspective in multiplayer
+        // For now, we'll use a simple approach where the first player to join is player1
+        if let localPlayerName = localParticipant?.player.displayName,
+           let opponentPlayerName = opponent?.player.displayName {
+            
+            // For strategy game, we need to determine which PlayerSide the local player is
+            // This is a simplified approach - in a full implementation you might want
+            // to store this mapping more explicitly in the game data
+            
+            // The player who started the match is typically player1
+            // But for now, we'll use alphabetical order as a consistent way to assign sides
+            let isLocalPlayerFirst = localPlayerName < opponentPlayerName
+            
+            // Update UI to reflect current game state
+            // The actual game logic uses the gameMap's currentPlayer property
         }
+    }
 //        do {
 //            if let gameData = try? PropertyListDecoder().decode(GameData.self, from: matchData) {
 //                // Set the match count.
