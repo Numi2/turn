@@ -26,6 +26,9 @@ struct SinglePlayerView: View {
                 VStack(spacing: 8) {
                     HStack {
                         Button {
+                            // Add haptic feedback
+                            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                            impactFeedback.impactOccurred()
                             presentationMode.wrappedValue.dismiss()
                         } label: {
                             HStack(spacing: 6) {
@@ -40,6 +43,9 @@ struct SinglePlayerView: View {
                         Spacer()
                         
                         Button {
+                            // Add haptic feedback
+                            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                            impactFeedback.impactOccurred()
                             singlePlayerGame.startNewGame()
                         } label: {
                             HStack(spacing: 6) {

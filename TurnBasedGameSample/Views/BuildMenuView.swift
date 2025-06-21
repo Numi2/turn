@@ -266,6 +266,7 @@ struct BuildMenuView: View {
                 HStack(spacing: 8) {
                     Image(systemName: canBuildSelectedUnit ? "hammer.fill" : "questionmark.circle")
                         .font(.headline)
+                      
                     
                     Text(selectedUnitType != nil ? "Build Unit" : "Select a Unit to Build")
                         .font(.headline)
@@ -273,13 +274,16 @@ struct BuildMenuView: View {
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(canBuildSelectedUnit ? 
                               LinearGradient(colors: [.blue, .blue.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
                               LinearGradient(colors: [.gray.opacity(0.6), .gray.opacity(0.4)], startPoint: .top, endPoint: .bottom))
+                        .shadow(color: canBuildSelectedUnit ? .blue.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                 )
+                .scaleEffect(canBuildSelectedUnit ? 1.0 : 0.98)
+                .animation(.easeInOut(duration: 0.2), value: canBuildSelectedUnit)
             }
             .disabled(!canBuildSelectedUnit)
             .padding(.horizontal, 20)

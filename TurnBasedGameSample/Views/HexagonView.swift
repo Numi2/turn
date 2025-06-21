@@ -95,6 +95,9 @@ struct HexagonView: View {
             }
         }
         .onTapGesture {
+            // Add haptic feedback for hexagon selection
+            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+            impactFeedback.impactOccurred()
             selectedCoordinate = coordinate
         }
     }

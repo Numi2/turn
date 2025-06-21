@@ -158,100 +158,52 @@ struct GameMapView: View {
             }
             
             // Modern action buttons
-            HStack(spacing: 12) {
+            HStack(spacing: 16) {
                 // Move/Attack buttons
                 if let selectedUnit = gameMap.selectedUnit {
-                    Button {
+                    ModernButton(
+                        title: "Move",
+                        icon: "figure.walk",
+                        color: .blue,
+                        isEnabled: selectedUnit.canMove && gameMap.turnPhase == .move
+                    ) {
                         gameMap.gameMode = .moveUnit
                         updateHighlights()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "figure.walk")
-                                .font(.headline)
-                            Text("Move")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedUnit.canMove && gameMap.turnPhase == .move ? 
-                                      LinearGradient(colors: [.blue, .blue.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
-                                      LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.2)], startPoint: .top, endPoint: .bottom))
-                        )
-                        .foregroundColor(selectedUnit.canMove && gameMap.turnPhase == .move ? .white : .gray)
                     }
-                    .disabled(!selectedUnit.canMove || gameMap.turnPhase != .move)
                     
-                    Button {
+                    ModernButton(
+                        title: "Attack", 
+                        icon: "sword.fill",
+                        color: .red,
+                        isEnabled: selectedUnit.canAttack && gameMap.turnPhase == .combat
+                    ) {
                         gameMap.gameMode = .attackUnit
                         updateHighlights()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "sword.fill")
-                                .font(.headline)
-                            Text("Attack")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedUnit.canAttack && gameMap.turnPhase == .combat ? 
-                                      LinearGradient(colors: [.red, .red.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
-                                      LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.2)], startPoint: .top, endPoint: .bottom))
-                        )
-                        .foregroundColor(selectedUnit.canAttack && gameMap.turnPhase == .combat ? .white : .gray)
                     }
-                    .disabled(!selectedUnit.canAttack || gameMap.turnPhase != .combat)
                 }
                 
                 // Build button
-                Button {
+                ModernButton(
+                    title: "Build",
+                    icon: "hammer.fill", 
+                    color: .green,
+                    isEnabled: gameMap.turnPhase == .build && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!)
+                ) {
                     if selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) {
                         showBuildMenu = true
                     }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "hammer.fill")
-                            .font(.headline)
-                        Text("Build")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(gameMap.turnPhase == .build && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) ? 
-                                  LinearGradient(colors: [.green, .green.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
-                                  LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.2)], startPoint: .top, endPoint: .bottom))
-                    )
-                    .foregroundColor(gameMap.turnPhase == .build && selectedCoordinate != nil && gameMap.isEmpty(at: selectedCoordinate!) ? .white : .gray)
                 }
-                .disabled(gameMap.turnPhase != .build || selectedCoordinate == nil || !gameMap.isEmpty(at: selectedCoordinate!))
                 
                 // Next phase button
-                Button {
+                ModernButton(
+                    title: "Next Phase",
+                    icon: "arrow.right.circle.fill",
+                    color: .purple,
+                    isEnabled: true,
+                    style: .prominent
+                ) {
                     gameMap.nextPhase()
                     clearSelection()
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.right.circle.fill")
-                            .font(.headline)
-                        Text("Next Phase")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(LinearGradient(colors: [.purple, .purple.opacity(0.8)], startPoint: .top, endPoint: .bottom))
-                    )
-                    .foregroundColor(.white)
                 }
             }
         }
@@ -519,6 +471,113 @@ struct GameMapView: View {
 
 // MARK: - Supporting Views
 
+struct ModernButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let isEnabled: Bool
+    let style: ButtonStyle
+    let action: () -> Void
+    
+    enum ButtonStyle {
+        case normal
+        case prominent
+    }
+    
+    init(title: String, icon: String, color: Color, isEnabled: Bool, style: ButtonStyle = .normal, action: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.color = color
+        self.isEnabled = isEnabled
+        self.style = style
+        self.action = action
+    }
+    
+    @State private var isPressed = false
+    
+    var body: some View {
+        Button(action: {
+            // Add haptic feedback for enabled buttons
+            if isEnabled {
+                let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                impactFeedback.impactOccurred()
+            }
+            action()
+        }) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                
+                Text(title)
+                    .font(.system(size: 15, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 44)
+            .foregroundColor(foregroundColor)
+            .background(backgroundView)
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: isPressed)
+        }
+        .disabled(!isEnabled)
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
+    }
+    
+    private var foregroundColor: Color {
+        if !isEnabled {
+            return .gray
+        }
+        return style == .prominent || isEnabled ? .white : .gray
+    }
+    
+    private var backgroundView: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(backgroundGradient)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(strokeColor, lineWidth: 1)
+            )
+            .shadow(color: shadowColor, radius: isPressed ? 1 : 3, x: 0, y: isPressed ? 1 : 2)
+    }
+    
+    private var backgroundGradient: LinearGradient {
+        if !isEnabled {
+            return LinearGradient(
+                colors: [Color.gray.opacity(0.2), Color.gray.opacity(0.1)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        
+        let baseColor = style == .prominent ? color : (isEnabled ? color : .gray)
+        return LinearGradient(
+            colors: [
+                baseColor.opacity(isPressed ? 0.8 : 1.0),
+                baseColor.opacity(isPressed ? 0.6 : 0.8)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
+    private var strokeColor: Color {
+        if !isEnabled {
+            return .clear
+        }
+        return color.opacity(0.3)
+    }
+    
+    private var shadowColor: Color {
+        if !isEnabled {
+            return .clear
+        }
+        return color.opacity(0.3)
+    }
+}
+
 struct ResourceDisplay: View {
     let icon: String
     let value: Int
@@ -540,8 +599,6 @@ struct ResourceDisplay: View {
         }
     }
 }
-
-
 
 // MARK: - Preview
 

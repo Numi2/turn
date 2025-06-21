@@ -28,30 +28,22 @@ struct MainMenuView: View {
             // Game mode buttons
             VStack(spacing: 20) {
                 // Single Player Button
-                Button {
+                ResponsiveButton(
+                    title: "Single Player",
+                    icon: "person.fill",
+                    color: .blue
+                ) {
                     showSinglePlayer = true
-                } label: {
-                    Label("Single Player", systemImage: "person.fill")
-                        .font(.title2)
-                      
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
-                .controlSize(.large)
                 
                 // Multiplayer Button
-                Button {
+                ResponsiveButton(
+                    title: "Multiplayer", 
+                    icon: "person.2.fill",
+                    color: .green
+                ) {
                     showMultiplayer = true
-                } label: {
-                    Label("Multiplayer", systemImage: "person.2.fill")
-                        .font(.title2)
-                     
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
-                .controlSize(.large)
             }
             .padding(.horizontal, 40)
             
@@ -97,5 +89,61 @@ struct MainMenuView: View {
 struct MainMenuView_Previews: PreviewProvider {
     static var previews: some View {
         MainMenuView()
+    }
+}
+
+struct ResponsiveButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    @State private var isPressed = false
+    
+    var body: some View {
+        Button(action: {
+            // Add haptic feedback
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+            action()
+        }) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title2)
+                
+                
+                Text(title)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .foregroundColor(.white)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                color.opacity(isPressed ? 0.8 : 1.0),
+                                color.opacity(isPressed ? 0.6 : 0.8)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(color.opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: color.opacity(0.4), radius: isPressed ? 2 : 8, x: 0, y: isPressed ? 2 : 4)
+            )
+            .scaleEffect(isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: isPressed)
+        }
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
     }
 }
