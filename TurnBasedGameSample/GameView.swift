@@ -13,11 +13,44 @@ struct GameView: View {
     @State private var showMessages: Bool = false
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
             // Display the game title.
-            Text("Turn-Based Game")
+            Text(game.isStrategyGame ? "Hexagon Strategy" : "Turn-Based Game")
                 .font(.title)
+                .padding()
             
+            if game.isStrategyGame {
+                // Strategy game interface
+                GameMapView(gameMap: game.gameMap)
+            } else {
+                // Legacy counter game interface
+                legacyGameInterface
+            }
+        }
+        // Display the text message view if it's enabled.
+        .sheet(isPresented: $showMessages) {
+            ChatView(game: game)
+        }
+        .alert("Game Over", isPresented: $game.youWon, actions: {
+            Button("OK", role: .cancel) {
+                game.resetGame()
+            }
+        }, message: {
+            Text("You win!")
+        })
+        .alert("Game Over", isPresented: $game.youLost, actions: {
+            Button("OK", role: .cancel) {
+                game.resetGame()
+            }
+        }, message: {
+            Text("You lose!")
+        })
+    }
+    
+    // MARK: - Legacy Game Interface
+    
+    private var legacyGameInterface: some View {
+        VStack(spacing: 20) {
             Form {
                 Section("Game Data") {
                     HStack {
@@ -117,24 +150,6 @@ struct GameView: View {
                 }
             }
         }
-        // Display the text message view if it's enabled.
-        .sheet(isPresented: $showMessages) {
-            ChatView(game: game)
-        }
-        .alert("Game Over", isPresented: $game.youWon, actions: {
-            Button("OK", role: .cancel) {
-                game.resetGame()
-            }
-        }, message: {
-            Text("You win.")
-        })
-        .alert("Game Over", isPresented: $game.youLost, actions: {
-            Button("OK", role: .cancel) {
-                game.resetGame()
-            }
-        }, message: {
-            Text("You lose.")
-        })
     }
 }
 
